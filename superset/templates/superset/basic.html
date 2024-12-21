@@ -119,5 +119,6 @@ governing permissions and limitations under the License. #}
     {% block tail_js %} {% if not standalone_mode %} {{ js_bundle('menu') }} {%
     endif %} {% if entry %} {{ js_bundle(entry) }} {% endif %} {% include
     "tail_js_custom_extra.html" %} {% endblock %}
+    <footer class="footer bg-black small text-center text-white-50"><div class="container"><p>Copyright &copy; - Majles</p></div></footer>
   </body>
 </html>
