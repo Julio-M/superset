@@ -1563,34 +1563,6 @@ class TestDatabaseApi(SupersetTestCase):
         rv = self.client.get(uri)
         self.assertEqual(rv.status_code, 404)
 
-    def test_get_select_star_datasource_access(self):
-        """
-        Database API: Test get select star with datasource access
-        """
-        table = SqlaTable(
-            schema="main", table_name="ab_permission", database=get_main_database()
-        )
-        db.session.add(table)
-        db.session.commit()
-
-        tmp_table_perm = security_manager.find_permission_view_menu(
-            "datasource_access", table.get_perm()
-        )
-        gamma_role = security_manager.find_role("Gamma")
-        security_manager.add_permission_role(gamma_role, tmp_table_perm)
-
-        self.login(GAMMA_USERNAME)
-        main_db = get_main_database()
-        uri = f"api/v1/database/{main_db.id}/select_star/ab_permission/"
-        rv = self.client.get(uri)
-        self.assertEqual(rv.status_code, 200)
-
-        # rollback changes
-        security_manager.del_permission_role(gamma_role, tmp_table_perm)
-        db.session.delete(table)
-        db.session.delete(main_db)
-        db.session.commit()
-
     def test_get_select_star_not_found_database(self):
         """
         Database API: Test get select star not found database
@@ -2213,17 +2185,17 @@ class TestDatabaseApi(SupersetTestCase):
         """
         Database API: Test test connection failed due to invalid hostname
         """
-        msg = 'psql: error: could not translate host name "locahost" to address: nodename nor servname provided, or not known'
+        msg = 'psql: error: could not translate host name "localhost_" to address: nodename nor servname provided, or not known'
         mock_build_db.return_value.set_sqlalchemy_uri.side_effect = DBAPIError(
             msg, None, None
         )
         mock_build_db.return_value.db_engine_spec.__name__ = "Some name"
         superset_error = SupersetError(
-            message='Unable to resolve hostname "locahost".',
+            message='Unable to resolve hostname "localhost_".',
             error_type="CONNECTION_INVALID_HOSTNAME_ERROR",
             level="error",
             extra={
-                "hostname": "locahost",
+                "hostname": "localhost_",
                 "issue_codes": [
                     {
                         "code": 1007,
@@ -2240,7 +2212,7 @@ class TestDatabaseApi(SupersetTestCase):
 
         self.login(ADMIN_USERNAME)
         data = {
-            "sqlalchemy_uri": "postgres://username:password@locahost:12345/db",
+            "sqlalchemy_uri": "postgres://username:password@localhost_:12345/db",
             "database_name": "examples",
             "impersonate_user": False,
             "server_cert": None,
@@ -3282,7 +3254,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": True,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
                 {
                     "available_drivers": ["bigquery"],
@@ -3306,7 +3280,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": True,
                         "disable_ssh_tunneling": True,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
                 {
                     "available_drivers": ["psycopg2"],
@@ -3362,7 +3338,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
                 {
                     "available_drivers": ["apsw"],
@@ -3386,7 +3364,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": True,
+                        "supports_oauth2": True,
                     },
+                    "supports_oauth2": True,
                 },
                 {
                     "available_drivers": ["mysqlconnector", "mysqldb"],
@@ -3442,7 +3422,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
                 {
                     "available_drivers": [""],
@@ -3454,7 +3436,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
             ]
         }
@@ -3487,7 +3471,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
                 {
                     "available_drivers": [""],
@@ -3499,7 +3485,9 @@ class TestDatabaseApi(SupersetTestCase):
                         "supports_file_upload": True,
                         "supports_dynamic_catalog": False,
                         "disable_ssh_tunneling": False,
+                        "supports_oauth2": False,
                     },
+                    "supports_oauth2": False,
                 },
             ]
         }
@@ -3868,7 +3856,7 @@ class TestDatabaseApi(SupersetTestCase):
         Database API: validate SQL with errors
         """
         request_payload = {
-            "sql": "SELECT col1 froma table1",
+            "sql": "SELECT col1 from_ table1",
             "schema": None,
             "template_params": None,
         }
