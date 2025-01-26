@@ -60,7 +60,7 @@ from superset.tags.core import register_sqla_event_listeners
 from superset.utils.core import is_test, pessimistic_connection_handling
 from superset.utils.decorators import transaction
 from superset.utils.log import DBEventLogger, get_event_logger_from_cfg_value
-from flask_mail import Mail, Message
+
 if TYPE_CHECKING:
     from superset.app import SupersetApp
 
