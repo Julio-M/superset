@@ -22,6 +22,8 @@ from typing import Optional
 from flask import Flask
 
 from superset.initialization import SupersetAppInitializer
+from flask_mail import Mail, Message
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,16 @@ def create_app(superset_config_module: Optional[str] = None) -> Flask:
             "SUPERSET_CONFIG", "superset.config"
         )
         app.config.from_object(config_module)
+        app.config['RECAPTCHA_USE_SSL'] = os.environ.get('RECAPTCHA_USE_SSL')
+        app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+        app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
+        app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
+        app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS')
+        app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+        app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+        app.config['MAIL_USE_SSL'] = False
+        app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+        app.config['MAIL_PORT'] = os.environ.get('MAIL_PORT')
 
         app_initializer = app.config.get("APP_INITIALIZER", SupersetAppInitializer)(app)
         app_initializer.init_app()
@@ -45,7 +57,6 @@ def create_app(superset_config_module: Optional[str] = None) -> Flask:
     except Exception:
         logger.exception("Failed to create app")
         raise
-
 
 class SupersetApp(Flask):
     pass

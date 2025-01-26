@@ -54,12 +54,13 @@ from superset.extensions import (
     talisman,
 )
 from superset.security import SupersetSecurityManager
+from superset.sql.parse import SQLGLOT_DIALECTS
 from superset.superset_typing import FlaskResponse
 from superset.tags.core import register_sqla_event_listeners
 from superset.utils.core import is_test, pessimistic_connection_handling
 from superset.utils.decorators import transaction
 from superset.utils.log import DBEventLogger, get_event_logger_from_cfg_value
-
+from flask_mail import Mail, Message
 if TYPE_CHECKING:
     from superset.app import SupersetApp
 
@@ -484,6 +485,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         self.configure_middlewares()
         self.configure_cache()
         self.set_db_default_isolation()
+        self.configure_sqlglot_dialects()
 
         with self.superset_app.app_context():
             self.init_app_in_ctx()
@@ -544,6 +546,9 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
     def configure_feature_flags(self) -> None:
         feature_flag_manager.init_app(self.superset_app)
 
+    def configure_sqlglot_dialects(self) -> None:
+        SQLGLOT_DIALECTS.update(self.config["SQLGLOT_DIALECTS_EXTENSIONS"])
+
     @transaction()
     def configure_fab(self) -> None:
         if self.config["SILENCE_FAB"]:
@@ -576,7 +581,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         self.superset_app.url_map.converters["regex"] = RegexConverter
         self.superset_app.url_map.converters["object_type"] = ObjectTypeConverter
 
-    def configure_middlewares(self) -> None:
+    def configure_middlewares(self) -> None:  # noqa: C901
         if self.config["ENABLE_CORS"]:
             # pylint: disable=import-outside-toplevel
             from flask_cors import CORS
@@ -643,7 +648,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 "We haven't found any Content Security Policy (CSP) defined in "
                 "the configurations. Please make sure to configure CSP using the "
                 "TALISMAN_ENABLED and TALISMAN_CONFIG keys or any other external "
-                "software. Failing to configure CSP have serious security implications. "
+                "software. Failing to configure CSP have serious security implications. "  # noqa: E501
                 "Check https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for more "
                 "information. You can disable this warning using the "
                 "CONTENT_SECURITY_POLICY_WARNING key."

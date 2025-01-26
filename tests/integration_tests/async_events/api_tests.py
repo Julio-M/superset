@@ -59,7 +59,7 @@ class TestAsyncEventApi(SupersetTestCase):
         assert rv.status_code == 200
         channel_id = app.config["GLOBAL_ASYNC_QUERIES_REDIS_STREAM_PREFIX"] + self.UUID
         mock_xrange.assert_called_with(channel_id, "-", "+", 100)
-        self.assertEqual(response, {"result": []})
+        assert response == {"result": []}
 
     def _test_events_last_id_logic(self, mock_cache):
         with mock.patch.object(mock_cache, "xrange") as mock_xrange:
@@ -69,7 +69,7 @@ class TestAsyncEventApi(SupersetTestCase):
         assert rv.status_code == 200
         channel_id = app.config["GLOBAL_ASYNC_QUERIES_REDIS_STREAM_PREFIX"] + self.UUID
         mock_xrange.assert_called_with(channel_id, "1607471525180-1", "+", 100)
-        self.assertEqual(response, {"result": []})
+        assert response == {"result": []}
 
     def _test_events_results_logic(self, mock_cache):
         with mock.patch.object(mock_cache, "xrange") as mock_xrange:
@@ -77,13 +77,13 @@ class TestAsyncEventApi(SupersetTestCase):
                 (
                     "1607477697866-0",
                     {
-                        "data": '{"channel_id": "1095c1c9-b6b1-444d-aa83-8e323b32831f", "job_id": "10a0bd9a-03c8-4737-9345-f4234ba86512", "user_id": "1", "status": "done", "errors": [], "result_url": "/api/v1/chart/data/qc-ecd766dd461f294e1bcdaa321e0e8463"}'
+                        "data": '{"channel_id": "1095c1c9-b6b1-444d-aa83-8e323b32831f", "job_id": "10a0bd9a-03c8-4737-9345-f4234ba86512", "user_id": "1", "status": "done", "errors": [], "result_url": "/api/v1/chart/data/qc-ecd766dd461f294e1bcdaa321e0e8463"}'  # noqa: E501
                     },
                 ),
                 (
                     "1607477697993-0",
                     {
-                        "data": '{"channel_id": "1095c1c9-b6b1-444d-aa83-8e323b32831f", "job_id": "027cbe49-26ce-4813-bb5a-0b95a626b84c", "user_id": "1", "status": "done", "errors": [], "result_url": "/api/v1/chart/data/qc-1bbc3a240e7039ba4791aefb3a7ee80d"}'
+                        "data": '{"channel_id": "1095c1c9-b6b1-444d-aa83-8e323b32831f", "job_id": "027cbe49-26ce-4813-bb5a-0b95a626b84c", "user_id": "1", "status": "done", "errors": [], "result_url": "/api/v1/chart/data/qc-1bbc3a240e7039ba4791aefb3a7ee80d"}'  # noqa: E501
                     },
                 ),
             ]
@@ -100,7 +100,7 @@ class TestAsyncEventApi(SupersetTestCase):
                     "errors": [],
                     "id": "1607477697866-0",
                     "job_id": "10a0bd9a-03c8-4737-9345-f4234ba86512",
-                    "result_url": "/api/v1/chart/data/qc-ecd766dd461f294e1bcdaa321e0e8463",
+                    "result_url": "/api/v1/chart/data/qc-ecd766dd461f294e1bcdaa321e0e8463",  # noqa: E501
                     "status": "done",
                     "user_id": "1",
                 },
@@ -109,13 +109,13 @@ class TestAsyncEventApi(SupersetTestCase):
                     "errors": [],
                     "id": "1607477697993-0",
                     "job_id": "027cbe49-26ce-4813-bb5a-0b95a626b84c",
-                    "result_url": "/api/v1/chart/data/qc-1bbc3a240e7039ba4791aefb3a7ee80d",
+                    "result_url": "/api/v1/chart/data/qc-1bbc3a240e7039ba4791aefb3a7ee80d",  # noqa: E501
                     "status": "done",
                     "user_id": "1",
                 },
             ]
         }
-        self.assertEqual(response, expected)
+        assert response == expected
 
     @mock.patch("uuid.uuid4", return_value=UUID)
     def test_events_redis_cache_backend(self, mock_uuid4):

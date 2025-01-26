@@ -23,7 +23,7 @@ from typing import Any, TYPE_CHECKING
 import backoff
 import jwt
 from flask import current_app, url_for
-from marshmallow import EXCLUDE, fields, post_load, Schema
+from marshmallow import EXCLUDE, fields, post_load, Schema, validate
 
 from superset import db
 from superset.distributed_lock import KeyValueDistributedLock
@@ -59,7 +59,7 @@ def get_oauth2_access_token(
     simultaneous requests for refreshing a stale token; in that case only the first
     process to acquire the lock will perform the refresh, and othe process should find a
     a valid token when they retry.
-    """
+    """  # noqa: E501
     # pylint: disable=import-outside-toplevel
     from superset.models.core import DatabaseUserOAuth2Tokens
 
@@ -192,3 +192,8 @@ class OAuth2ClientConfigSchema(Schema):
     )
     authorization_request_uri = fields.String(required=True)
     token_request_uri = fields.String(required=True)
+    request_content_type = fields.String(
+        required=False,
+        load_default=lambda: "json",
+        validate=validate.OneOf(["json", "data"]),
+    )

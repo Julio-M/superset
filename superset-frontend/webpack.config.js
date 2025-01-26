@@ -45,10 +45,10 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TRANSLATIONS_DIR = path.resolve(__dirname, '../superset/translations');
 
 const getAvailableTranslationCodes = () => {
-  const LOCALE_CODE_MAPPING = {
-    zh: 'zh-cn',
-  };
-  try {
+  if (process.env.BUILD_TRANSLATIONS === 'true') {
+    const LOCALE_CODE_MAPPING = {
+      zh: 'zh-cn',
+    };
     const files = fs.readdirSync(TRANSLATIONS_DIR);
     return files
       .filter(file =>
@@ -57,10 +57,9 @@ const getAvailableTranslationCodes = () => {
       .filter(dirName => !dirName.startsWith('__'))
       .map(dirName => dirName.replace('_', '-'))
       .map(dirName => LOCALE_CODE_MAPPING[dirName] || dirName);
-  } catch (err) {
-    console.error('Error reading the directory:', err);
-    return [];
   }
+  // Indicates to the MomentLocalesPlugin that we only want to keep 'en'.
+  return [];
 };
 
 const {
@@ -527,7 +526,7 @@ const config = {
     'react/lib/ReactContext': true,
   },
   plugins,
-  devtool: 'source-map',
+  devtool: isDevMode ? 'eval-cheap-module-source-map' : false,
 };
 
 // find all the symlinked plugins and use their source code for imports
@@ -545,7 +544,6 @@ console.log(''); // pure cosmetic new line
 let proxyConfig = getProxyConfig();
 
 if (isDevMode) {
-  config.devtool = 'eval-cheap-module-source-map';
   config.devServer = {
     onBeforeSetupMiddleware(devServer) {
       // load proxy config when manifest updates

@@ -47,6 +47,7 @@ describe('FilterScope', () => {
     activeFilterPanelKeys: `DefaultFilterId-${FilterPanels.configuration.key}`,
     isActive: true,
     validateDependencies: jest.fn(),
+    onModifyFilter: jest.fn(),
   };
 
   const MockModal = ({ scope }: { scope?: object }) => {
@@ -82,7 +83,7 @@ describe('FilterScope', () => {
     render(<MockModal />);
     fireEvent.click(screen.getByText('Scoping'));
     fireEvent.click(screen.getByLabelText('Apply to specific panels'));
-    expect(screen.getByRole('tree')).not.toBe(null);
+    expect(screen.getByRole('tree')).toBeInTheDocument();
     fireEvent.click(getTreeSwitcher(2));
     fireEvent.click(screen.getByText('CHART_ID2'));
     await waitFor(() =>
@@ -99,7 +100,7 @@ describe('FilterScope', () => {
     render(<MockModal />);
     fireEvent.click(screen.getByText('Scoping'));
     fireEvent.click(screen.getByLabelText('Apply to specific panels'));
-    expect(screen.getByRole('tree')).not.toBe(null);
+    expect(screen.getByRole('tree')).toBeInTheDocument();
     fireEvent.click(getTreeSwitcher(2));
     fireEvent.click(screen.getByText('CHART_ID2'));
     fireEvent.click(screen.getByText('tab1'));

@@ -25,6 +25,7 @@ import {
   within,
   waitForElementToBeRemoved,
 } from 'spec/helpers/testing-library';
+import { VizType } from '@superset-ui/core';
 import { buildErrorTooltipMessage } from './buildErrorTooltipMessage';
 import AlertReportModal, { AlertReportModalProps } from './AlertReportModal';
 import { AlertObject, NotificationMethodOption } from './types';
@@ -95,7 +96,7 @@ const generateMockPayload = (dashboard = true) => {
     chart: {
       id: 1,
       slice_name: 'Test Chart',
-      viz_type: 'table',
+      viz_type: VizType.Table,
     },
   };
 };
@@ -483,7 +484,7 @@ test('removes ignore cache checkbox when chart is selected', async () => {
     screen.queryByRole('checkbox', {
       name: /ignore cache when generating report/i,
     }),
-  ).toBe(null);
+  ).not.toBeInTheDocument();
 });
 
 test('does not show screenshot width when csv is selected', async () => {
